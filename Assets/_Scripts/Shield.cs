@@ -2,16 +2,18 @@
 using System.Collections;
 
 public class Shield : MonoBehaviour {
+    [Header("Set in Inspector")]
+    public float rotationsPerSecond = 0.1f;
 
-	public float rotationsPerSecond = 0.1f;
-	public bool ___________________________;
-	public int levelShown = 0;
+    [Header("Set Dynamically")]
+    public int levelShown = 0;
 
+    Material mat;
 
-	// Use this for initialization
-	void Start () {
-
-	}
+    // Use this for initialization
+    void Start () {
+        mat = GetComponent<Renderer>().material;
+    }
 	
 	// Update is called once per frame
 	void Update () {

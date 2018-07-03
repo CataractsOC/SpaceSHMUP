@@ -2,27 +2,24 @@
 using System.Collections;
 
 public class Hero : MonoBehaviour {
-
 	static public Hero		S;
 
-	public float	speed = 30;
+    [Header("Set in Inspector")]
+    public float	speed = 30;
 	public float	rollMult = -45;
 	public float  	pitchMult=30;
 
-	public float	shieldLevel=1;
+    [Header("Set Dynamically")]
+    [SerializeField]
+    private float _shieldLevel = 1;
+    // This variable holds a reference to the last triggering GameObject
+    private GameObject lastTriggerGo = null;
 
-	public bool	_____________________;
 	public Bounds bounds;
 
 	void Awake(){
 		S = this;
 		bounds = Utils.CombineBoundsOfChildren (this.gameObject);
-	}
-
-
-	// Use this for initialization
-	void Start () {
-	
 	}
 	
 	// Update is called once per frame
@@ -37,14 +34,42 @@ public class Hero : MonoBehaviour {
 		
 		bounds.center = transform.position;
 		
-		// constrain to screen
 		Vector3 off = Utils.ScreenBoundsCheck(bounds,BoundsTest.onScreen);
-		if (off != Vector3.zero) {  // we need to move ship back on screen
+		if (off != Vector3.zero) {
 			pos -= off;
 			transform.position = pos;
 		}
 		
-		// rotate the ship to make it feel more dynamic
 		transform.rotation =Quaternion.Euler(yAxis*pitchMult, xAxis*rollMult,0);
 	}
+
+    void OnTriggerEnter(Collider other) {
+        Transform rootT = other.gameObject.transform.root;
+        GameObject go = rootT.gameObject;
+        //print("Triggered: "+go.name);
+        //print("Triggered: " + other.gameObject.name);
+
+        if (go == lastTriggerGo) {
+            return;
+        }
+        lastTriggerGo = go;
+        if (go.tag == "Enemy") {
+            shieldLevel--;
+            Destroy(go);
+        } else {
+            print("Triggered by non-Enemy: " + go.name);
+        }
+    }
+
+    public float shieldLevel {
+        get {
+            return (_shieldLevel);
+        }
+        set {
+            _shieldLevel = Mathf.Min(value, 4);
+            if (value < 0) {
+                Destroy(this.gameObject);
+            }
+        }
+    }
 }
